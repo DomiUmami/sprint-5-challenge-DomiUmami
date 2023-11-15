@@ -13,15 +13,19 @@ async function sprintChallenge5() { // Note the async keyword, in case you wish 
   .then(res => {
     const learnerData = res[0].data
     const mentorData = res[1].data
+
+    const cardsContainer = document.querySelector('.cards')
   
     for(let idx = 0; idx < learnerData.length; idx++){
       const whichLearner = learnerData[idx]
       const learnerCard = buildLearnerCard(whichLearner, mentorData)
-      document.querySelector('section').appendChild(learnerCard)
+      cardsContainer.appendChild(learnerCard)
     }
+
+    document.querySelector('p.info').textContent = `No learner is selected`
+    
   
     function buildLearnerCard(learner, mentors){
-    
       const card = document.createElement('div')
       card.classList.add('card')
       card.style.width = '267.81px'
@@ -33,11 +37,8 @@ async function sprintChallenge5() { // Note the async keyword, in case you wish 
        nameP.textContent = `${learner.fullName}`
        nameP.id = `learnerName_${learner.id}`
        card.appendChild(nameP)
-       
      }
     
-    
-     
     if (learner && learner.email) {
       const emailP = document.createElement('div');
       emailP.textContent = `${learner.email}`;
@@ -47,32 +48,26 @@ async function sprintChallenge5() { // Note the async keyword, in case you wish 
     if (learner && learner.mentors) {
       const mentorsP = document.createElement('h4')
       mentorsP.classList.add('closed')
-      mentorsP.textContent = "Mentors"
-  
+      mentorsP.textContent = 'Mentors';
+      
       mentorsP.addEventListener('click', () => {
-        if(mentorsList.style.display === 'none'){
-          mentorsList.style.display = 'block'
-          document.querySelectorAll('.card.selected').forEach(selectedCard => {
-            selectedCard.classList.remove('selected');
-          });
-          card.classList.add('selected')
-          document.querySelector('p.info').textContent = `The selected learner is ${learner.fullName}`
-        } else {
-          document.querySelectorAll('.card.selected').forEach(selectedCard => {
+        const mentorsList = card.querySelector('ul');
+        mentorsList.style.display = mentorsList.style.display === 'none' ? 'block' : 'none';
+      
+        document.querySelectorAll('.card.selected').forEach((selectedCard) => {
           selectedCard.classList.remove('selected');
         });
-          card.classList.add('selected')
-          document.querySelector('p.info').textContent = `The selected learner is ${learner.fullName}`
-          mentorsList.style.display = 'none'
-        }
-  
-        mentorsP.classList.toggle('closed')
-        mentorsP.classList.toggle('open')
-      })
+
+        card.classList.add('selected');
+        document.querySelector('p.info').textContent = `The selected learner is ${learner.fullName}`;
+      
+        mentorsP.classList.toggle('closed');
+        mentorsP.classList.toggle('open');
+      });
   
       const matchingMentors = mentors.filter(mentor => learner.mentors.includes(mentor.id));
   
-      const mentorsList = document.createElement('ul')
+      const mentorsList = document.createElement('ul');
       mentorsList.style.display = 'none'
       
       mentorsP.appendChild(mentorsList)
@@ -92,45 +87,40 @@ async function sprintChallenge5() { // Note the async keyword, in case you wish 
     
     const originalNameContent = learner.fullName
 
-    card.addEventListener('click', evt => {
+    card.addEventListener('click', (evt) => {
       const isMentorsListClick = evt.target.closest('h4') !== null;
       
-
-
       if (!isMentorsListClick) {
         const isSelected = card.classList.contains('selected')
         document.querySelectorAll('.card.selected').forEach(selectedCard => {
           selectedCard.classList.remove('selected');
+          selectedCard.querySelector('h3').textContent = selectedCard.originalNameContent
+          
+          
+        
         })
-    
-      if (!isSelected){
-        document.querySelectorAll('card').forEach(notSelected => {
-          notSelected.querySelectorAll('h3').textContent = `${learner.fullName}`
-        })
-      }
 
-
-      if (!isSelected) {
+        if (!isSelected) {
           document.querySelectorAll('.card.selected').forEach((selectedCard) => {
             selectedCard.classList.remove('selected');
-          })
-          card.classList.add('selected')
-          document.querySelector('p.info').textContent = `The selected learner is ${learner.fullName}`
-          const selectedName = document.getElementById(`learnerName_${learner.id}`)
-          
-          if (selectedName) {
-            selectedName.textContent = `${learner.fullName}, ID ${learner.id}`
-          }
-        } else {
-          document.querySelector('p.info').textContent = `No learner is selected`
-          
-          const originalName = document.getElementById(`learnerName_${learner.id}`)
-          if (originalName) {
-            originalName.textContent = originalNameContent
+          });
+            card.classList.add('selected');
+            document.querySelector('p.info').textContent = `The selected learner is ${learner.fullName}`;
+            const selectedName = document.getElementById(`learnerName_${learner.id}`);
+
+        if (selectedName) {
+              selectedName.textContent = `${learner.fullName}, ID ${learner.id}`;
+            }
+          } else {
+            document.querySelector('p.info').textContent = `No learner is selected`;
+        
+        const originalName = document.getElementById(`learnerName_${learner.id}`)
+        if (originalName) {
+          originalName.textContent = originalNameContent;
           }
         }
+        card.originalNameContent = learner.fullName;
       }
-      
     });
     
       return card
